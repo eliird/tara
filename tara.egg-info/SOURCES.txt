@@ -1,0 +1,8 @@
+README.md
+setup.py
+tara/__init__.py
+tara.egg-info/PKG-INFO
+tara.egg-info/SOURCES.txt
+tara.egg-info/dependency_links.txt
+tara.egg-info/requires.txt
+tara.egg-info/top_level.txt

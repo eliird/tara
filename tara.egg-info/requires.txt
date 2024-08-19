@@ -1,0 +1,11 @@
+numpy>=1.18.0
+opencv-python
+torchaudio
+torch
+torchvision
+transformers
+librosa
+moviepy
+facenet_pytorch
+tiktoken
+transformers_stream_generator
