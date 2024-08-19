@@ -47,6 +47,7 @@ class TrainerTextAudio:
             self.optimizer, num_warmup_steps= self.args.warmup_steps, num_training_steps=len(trainloader) * self.args.epochs            
         )
         
+        self.best_acc = 0
         self.fix_seeds(self.args.seed)
     
     def fix_seeds(self, seed_val):
@@ -63,13 +64,12 @@ class TrainerTextAudio:
         # during evaluation.
         self.model.eval()
         # Tracking variables 
-        best_eval_accuracy = 0
         total_eval_loss = 0
         
         preds = []
         labels = []
         
-        for _, batch in enumerate(tqdm(self.val_data)):
+        for i, batch in enumerate(tqdm(self.val_data)):
             b_audio_input = batch[0].to(self.device)
             b_input_ids = batch[1].to(self.device)
             b_input_mask = batch[2].to(self.device)
@@ -97,14 +97,12 @@ class TrainerTextAudio:
         preds, labels = np.array(preds), np.array(labels)
         avg_val_accuracy = f1_score(preds.flatten(), labels.flatten(), average='weighted')# total_eval_accuracy / len(dataloader)
         print("  Accuracy: {0:.2f}".format(avg_val_accuracy))
-        # Calculate the average loss over all of the batches.
         avg_val_loss = total_eval_loss / len(self.val_data)
-        # Measure how long the validation run took.
         validation_time = format_time(time.time() - t0)
-        if avg_val_accuracy > best_eval_accuracy:
-            torch.save(self.model, os.path.join(self.out_dir, 'bert.pt'))
-            
-            best_eval_accuracy = avg_val_accuracy
+        
+        if avg_val_accuracy > self.best_acc:
+            torch.save(self.model.state_dict(), os.path.join(self.out_dir, 'text_audio.pt'))
+            self.best_acc = avg_val_accuracy
         return (avg_val_accuracy, avg_val_loss, validation_time)
     
     def train_epoch(self, epoch_i):

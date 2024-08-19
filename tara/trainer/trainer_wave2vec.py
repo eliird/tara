@@ -37,6 +37,8 @@ class TrainerWave2Vec:
         self.train_data = trainloader
         self.val_data = testloader
 
+        self.best_acc = 0
+        
         self.training_stats = []
 
         self.model = model.to(self.device)
@@ -61,7 +63,6 @@ class TrainerWave2Vec:
         # during evaluation.
         self.model.eval()
         # Tracking variables 
-        best_eval_accuracy = 0
         total_eval_loss = 0
         
         preds = []
@@ -94,9 +95,9 @@ class TrainerWave2Vec:
 
         # Measure how long the validation run took.
         validation_time = format_time(time.time() - t0)
-        if avg_val_accuracy > best_eval_accuracy:
-            torch.save(self.model, os.path.join(self.out_dir, 'wave2vec.pt'))
-            best_eval_accuracy = avg_val_accuracy
+        if avg_val_accuracy > self.best_acc:
+            torch.save(self.model.state_dict(), os.path.join(self.out_dir, 'wave2vec.pt'))
+            self.best_acc = avg_val_accuracy
 
         return (avg_val_accuracy, avg_val_loss, validation_time)
     

@@ -76,7 +76,7 @@ class TextAudioModel(nn.Module):
             print("Loading Audio model from Huggingface")
             
             self.audio_model = Wav2Vec2ForSequenceClassification.from_pretrained(
-                self.text_model_path,
+                self.audio_model_path,
                 num_labels=self.num_labels,
             )
             

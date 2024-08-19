@@ -46,6 +46,7 @@ class TrainerBERT:
         self.val_data = testloader
 
         self.out_dir = out_dir
+        self.best_acc = 0
         
         self.training_stats = []
 
@@ -107,10 +108,10 @@ class TrainerBERT:
         avg_val_loss = total_eval_loss / len(self.val_data)
         # Measure how long the validation run took.
         validation_time = format_time(time.time() - t0)
-        if avg_val_accuracy > best_eval_accuracy:
-            torch.save(self.model, os.path.join(self.out_dir, 'bert.pt'))
+        if avg_val_accuracy > self.best_acc:
+            torch.save(self.model.state_dict(), os.path.join(self.out_dir, 'bert.pt'))
+            self.best_acc = avg_val_accuracy
             
-            best_eval_accuracy = avg_val_accuracy
         return (avg_val_accuracy, avg_val_loss, validation_time)
     
     def train_epoch(self, epoch_i):
