@@ -4,6 +4,7 @@
 ## Installation
 > git clone https://github.com/eliird/tara
 > pip install -e .
+> Download the weights from the following [link](https://mega.nz/file/DJox1YgS#RbfBzYmvCisgBjqSFY3MY5gvsEXiU4wBTNNnKuMFoKk)
 
 ## Usage
 ```
@@ -11,6 +12,7 @@ from tara.inference import EmotionRecognition
 import librosa as lb
 
 # initialize the model
+# the model requires the path of the saved_weights
 model = EmotionRecognition('./saved_weights/text_audio.pt')
 
 # load the audio data in the library
