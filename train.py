@@ -1,5 +1,7 @@
 # training the combined model
 import os
+import pickle
+
 os.environ['TOKENIZERS_PARALLELISM'] = 'true'
 
 
@@ -36,8 +38,11 @@ trainer = TrainerTextAudio(
     trainloader=train,
     testloader=val,
     out_dir='./saved_weights/',
-    args = TrainingArgs()
+    args = TrainingArgs(epochs=20)
 )
 
 print("Trainer created")
-trainer.validate()
+trainer.train()
+
+with open('./logs/training_stats.pkl', 'wb') as f:
+    pickle.dump(trainer.training_stats, f)
