@@ -51,12 +51,10 @@ class TextAudioDataset(Dataset):
         
         if rand > 0.66 and self.mask_training:
             #mask audio
-            print("masking audio")
-            audio_input = torch.zeros(audio_input.shape)
+            audio_input = torch.zeros(audio_input.shape, dtype=audio_input.dtype)
         elif rand > 0.33 and self.mask_training:
             #mask text
-            print("masking text")
-            text_input = torch.zeros(text_input.shape)
+            text_input = torch.zeros(text_input.shape, dtype=text_input.dtype)
         
         labels = torch.tensor(self.df.iloc[index]['labels'])
         
