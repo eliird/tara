@@ -1,3 +1,4 @@
+import random
 from tara.data import load_data
 from torch.utils.data import Dataset, DataLoader
 import librosa as lb
@@ -15,7 +16,9 @@ class TextAudioDataset(Dataset):
                  text_input_ids,
                  text_attention_masks,
                  audio_processor, 
-                 sr=16_000, duration: float=3):
+                 sr=16_000, duration: float=3,
+                 mask_training: bool=False,
+                 ):
         
         self.df = df
         self.text_input_ids = text_input_ids
@@ -27,7 +30,11 @@ class TextAudioDataset(Dataset):
         self.sampling_rate = sr
         self.samples = self.duration * self.sampling_rate
     
+        self.mask_training = mask_training
+        
     def __getitem__(self, index) -> Any:
+        rand = random.uniform(0, 1)
+        
         file_path = self.df.iloc[index]['filename']
         
         with warnings.catch_warnings():
@@ -41,6 +48,15 @@ class TextAudioDataset(Dataset):
         
         text_input = self.text_input_ids[index]
         text_attention = self.text_attention_masks[index]
+        
+        if rand > 0.66 and self.mask_training:
+            #mask audio
+            print("masking audio")
+            audio_input = torch.zeros(audio_input.shape)
+        elif rand > 0.33 and self.mask_training:
+            #mask text
+            print("masking text")
+            text_input = torch.zeros(text_input.shape)
         
         labels = torch.tensor(self.df.iloc[index]['labels'])
         
@@ -57,7 +73,7 @@ class TextAudioDataset(Dataset):
         return arr
     
 
-def load_text_audio_dataloader(base_path: str, processor, tokenizer, batch_size=16):
+def load_text_audio_dataloader(base_path: str, processor, tokenizer, batch_size=16, masked_training: bool=True):
     
     train_df, test_df, val_df = load_data(base_path)
     train, test, val = load_data_encoded(
@@ -70,7 +86,8 @@ def load_text_audio_dataloader(base_path: str, processor, tokenizer, batch_size=
         train_df,
         text_input_ids=train['input_ids'],
         text_attention_masks=train['attention_masks'],
-        audio_processor=processor
+        audio_processor=processor,
+        mask_training=masked_training
     )
     
     
@@ -78,14 +95,16 @@ def load_text_audio_dataloader(base_path: str, processor, tokenizer, batch_size=
         test_df,
         text_input_ids=test['input_ids'],
         text_attention_masks=test['attention_masks'],
-        audio_processor=processor
+        audio_processor=processor,
+         mask_training=False
     )
     
     val = TextAudioDataset(
         val_df,
         text_input_ids=val['input_ids'],
         text_attention_masks=val['attention_masks'],
-        audio_processor=processor
+        audio_processor=processor,
+        mask_training=False
     )
     
     train = tensor_data_to_dataloader(train, batch_size=batch_size)
